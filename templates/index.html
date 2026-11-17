@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search trains</h1>
+<form method="get" action="{{ url_for('index') }}" class="card search">
+  <label>From
+    <select name="source" required>
+      <option value="">Select station</option>
+      {% for s in stations %}<option value="{{ s }}" {% if s == source %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>To
+    <select name="destination" required>
+      <option value="">Select station</option>
+      {% for s in stations %}<option value="{{ s }}" {% if s == destination %}selected{% endif %}>{{ s }}</option>{% endfor %}
+    </select>
+  </label>
+  <label>Date (optional for "Show all")
+    <input type="date" name="date" min="{{ min_date }}" max="{{ max_date }}" value="{{ travel_date or min_date }}">
+  </label>
+  <button type="submit">Search date</button>
+  <button type="submit" name="all" value="1" class="light" formnovalidate>Show all trains</button>
+</form>
+<p class="muted">Tickets can be booked from {{ min_date }} to {{ max_date }}.</p>
+
+{% if upcoming is not none %}
+  <h2>{{ source }} to {{ destination }}: next departures ({{ total }} available)</h2>
+  {% if upcoming %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Date</th><th>Train</th><th>Departs</th><th>Arrives</th><th>Fare</th><th>Seats left</th><th></th></tr></thead>
+      <tbody>
+      {% for r in upcoming %}
+        <tr>
+          <td>{{ r['label'] }}</td>
+          <td><strong>{{ r['train']['number'] }}</strong><br>{{ r['train']['name'] }}</td>
+          <td>{{ r['train']['departs'] }}</td>
+          <td>{{ r['train']['arrives'] }}</td>
+          <td>Rs. {{ r['train']['fare'] }}</td>
+          <td>{% if r['available'] > 0 %}{{ r['available'] }}{% else %}<span class="tag red">Sold out</span>{% endif %}</td>
+          <td>
+            {% if r['available'] > 0 %}
+              {% if g.user %}
+                <a class="btn" href="{{ url_for('book', train_id=r['train']['id'], date=r['date']) }}">Book</a>
+              {% else %}
+                <a href="{{ url_for('login') }}">Login to book</a>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="pager">
+    {% if page > 1 %}<a class="btn light" href="{{ url_for('index', source=source, destination=destination, all=1, page=page-1) }}">Previous</a>{% endif %}
+    <span class="muted">Page {{ page }} of {{ total_pages }}</span>
+    {% if page < total_pages %}<a class="btn light" href="{{ url_for('index', source=source, destination=destination, all=1, page=page+1) }}">Next 10</a>{% endif %}
+  </div>
+  {% else %}
+    <p class="muted">No upcoming trains on this route.</p>
+  {% endif %}
+
+{% elif results is not none %}
+  <h2>{{ source }} to {{ destination }} on {{ travel_date }}</h2>
+  {% if results %}
+  <div class="table-wrap">
+    <table>
+      <thead><tr><th>Train</th><th>Departs</th><th>Arrives</th><th>Fare</th><th>Seats left</th><th></th></tr></thead>
+      <tbody>
+      {% for t in results %}
+        <tr>
+          <td><strong>{{ t['number'] }}</strong><br>{{ t['name'] }}</td>
+          <td>{{ t['departs'] }}</td>
+          <td>{{ t['arrives'] }}</td>
+          <td>Rs. {{ t['fare'] }}</td>
+          <td>
+            {% if t['departed'] %}<span class="tag red">Departed</span>
+            {% elif t['available'] > 0 %}{{ t['available'] }}
+            {% else %}<span class="tag red">Sold out</span>{% endif %}
+          </td>
+          <td>
+            {% if t['available'] > 0 and not t['departed'] %}
+              {% if g.user %}
+                <a class="btn" href="{{ url_for('book', train_id=t['id'], date=travel_date) }}">Book</a>
+              {% else %}
+                <a href="{{ url_for('login') }}">Login to book</a>
+              {% endif %}
+            {% endif %}
+          </td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+    <p class="muted">No trains run on this route.</p>
+  {% endif %}
+{% else %}
+  <p class="muted">Pick stations, then press "Show all trains" for the next departures, or choose a date.</p>
+{% endif %}
+{% endblock %}

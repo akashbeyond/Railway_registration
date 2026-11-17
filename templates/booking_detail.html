@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Booking {{ booking['pnr'] }} - RailBook{% endblock %}
+{% block content %}
+<h1>Booking details</h1>
+<div class="card">
+  <p>PNR: <strong>{{ booking['pnr'] }}</strong>
+    <span class="tag {% if booking['status'] == 'CONFIRMED' %}green{% else %}red{% endif %}">{{ booking['status'] }}</span></p>
+  <p><strong>{{ booking['number'] }} - {{ booking['train_name'] }}</strong></p>
+  <p>{{ booking['source'] }} to {{ booking['destination'] }} | {{ booking['departs'] }} - {{ booking['arrives'] }}</p>
+  <p>Travel date: {{ booking['travel_date'] }} | Seats: {{ booking['seats'] }} | Total fare: Rs. {{ booking['total_fare'] }}</p>
+  <p class="muted">Booked on {{ booking['booked_at'] }} (UTC)</p>
+</div>
+<div class="card">
+  <h2>Passengers</h2>
+  <ol>{% for p in passengers %}<li>{{ p['name'] }}, {{ p['age'] }} yrs</li>{% endfor %}</ol>
+</div>
+{% if can_cancel %}
+<form method="post" action="{{ url_for('cancel_booking', pnr=booking['pnr']) }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <button type="submit" class="danger">Cancel booking</button>
+</form>
+{% endif %}
+<p><a href="{{ url_for('my_bookings') }}">Back to my bookings</a></p>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Register - RailBook{% endblock %}
+{% block content %}
+<h1>Create account</h1>
+<form method="post" class="card narrow">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <label>Full name
+    <input type="text" name="name" value="{{ name }}" maxlength="60" required autocomplete="name">
+  </label>
+  <label>Email
+    <input type="email" name="email" value="{{ email }}" maxlength="254" required autocomplete="email">
+  </label>
+  <label>Password
+    <input type="password" name="password" minlength="8" maxlength="128" required autocomplete="new-password">
+  </label>
+  <p class="muted">At least 8 characters, mixing letters with numbers or symbols.</p>
+  <button type="submit">Register</button>
+  <p>Already registered? <a href="{{ url_for('login') }}">Login</a></p>
+</form>
+{% endblock %}

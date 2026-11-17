@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Book tickets - RailBook{% endblock %}
+{% block content %}
+<h1>Book tickets</h1>
+<div class="card">
+  <p><strong>{{ train['number'] }} - {{ train['name'] }}</strong></p>
+  <p>{{ train['source'] }} to {{ train['destination'] }} | {{ train['departs'] }} - {{ train['arrives'] }}</p>
+  <p>Date: {{ travel_date }} | Fare: Rs. {{ train['fare'] }} per passenger | Seats left: {{ train['available'] }}</p>
+</div>
+<form method="post" class="card" autocomplete="off">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="date" value="{{ travel_date }}">
+  <h2>Passengers (up to {{ max_passengers }})</h2>
+  {% for row in rows %}
+  <div class="pax">
+    <span class="num">{{ loop.index }}</span>
+    <input type="text" name="name" maxlength="60" placeholder="Full name" value="{{ row['name'] }}" {% if loop.first %}required{% endif %}>
+    <input type="number" name="age" min="1" max="120" placeholder="Age" value="{{ row['age'] }}" {% if loop.first %}required{% endif %}>
+  </div>
+  {% endfor %}
+  <p class="muted">Leave unused rows empty. Demo payment: no card details are collected or stored.</p>
+  <button type="submit">Confirm booking</button>
+  <a class="btn secondary" href="{{ url_for('index') }}">Back</a>
+</form>
+{% endblock %}

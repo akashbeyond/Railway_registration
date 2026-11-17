@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}My bookings - RailBook{% endblock %}
+{% block content %}
+<h1>My bookings</h1>
+{% if bookings %}
+<div class="table-wrap">
+  <table>
+    <thead><tr><th>PNR</th><th>Train</th><th>Route</th><th>Date</th><th>Seats</th><th>Fare</th><th>Status</th></tr></thead>
+    <tbody>
+    {% for b in bookings %}
+      <tr>
+        <td><a href="{{ url_for('booking_detail', pnr=b['pnr']) }}">{{ b['pnr'] }}</a></td>
+        <td>{{ b['number'] }} {{ b['train_name'] }}</td>
+        <td>{{ b['source'] }} to {{ b['destination'] }}</td>
+        <td>{{ b['travel_date'] }}</td>
+        <td>{{ b['seats'] }}</td>
+        <td>Rs. {{ b['total_fare'] }}</td>
+        <td><span class="tag {% if b['status'] == 'CONFIRMED' %}green{% else %}red{% endif %}">{{ b['status'] }}</span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+  <p class="muted">No bookings yet. <a href="{{ url_for('index') }}">Search trains</a></p>
+{% endif %}
+{% endblock %}
