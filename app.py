@@ -626,6 +626,8 @@ class Cursor:
 
     def fetchall(self):
         return [self._row(row) for row in self._cursor.fetchall()]
+    def __iter__(self):
+        return iter(self.fetchall())
 
     @property
     def rowcount(self):
